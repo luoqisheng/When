@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'When_Example' do
+  pod 'When', :path => '../'
+
+  target 'When_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
