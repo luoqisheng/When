@@ -1,0 +1,22 @@
+{
+  "name": "When",
+  "version": "0.1.0",
+  "summary": "A short description of When.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/luoqisheng/When",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "luoqisheng": "luoqisheng@bytedance.com"
+  },
+  "source": {
+    "git": "https://github.com/luoqisheng/When.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "When/Classes/**/*"
+}

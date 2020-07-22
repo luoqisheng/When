@@ -1,0 +1,16 @@
+PODS:
+  - When (0.1.0)
+
+DEPENDENCIES:
+  - When (from `../`)
+
+EXTERNAL SOURCES:
+  When:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  When: 53b302a3480494298926acd19ac4fd2a867a9595
+
+PODFILE CHECKSUM: 4c6d4d86ed486b5056de5ffeabadf9bf42d50d47
+
+COCOAPODS: 1.8.4

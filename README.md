@@ -22,7 +22,7 @@ pod 'When'
 
 ## Author
 
-luoqisheng, luoqisheng@bytedance.com
+luoqisheng, qishengluo@126.com
 
 ## License
 

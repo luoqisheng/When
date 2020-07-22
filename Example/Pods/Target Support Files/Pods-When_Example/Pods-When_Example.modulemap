@@ -1,0 +1,6 @@
+framework module Pods_When_Example {
+  umbrella header "Pods-When_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}
