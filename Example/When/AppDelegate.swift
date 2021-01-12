@@ -9,6 +9,57 @@
 import UIKit
 import When
 
+protocol AppEventProtocol: When {
+    
+    func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) -> Void
+    
+    func homePageDidAppear() -> Void
+    
+    func userDidLogin() -> Void
+    
+    func userDidLogout() -> Void
+}
+
+extension AppEventProtocol {
+        
+    func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) -> Void { }
+    
+    func homePageDidAppear() -> Void { }
+    
+    func userDidLogin() -> Void { }
+    
+    func userDidLogout() -> Void { }
+    
+}
+
+extension WhenEngine: AppEventProtocol {
+    
+    func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) {
+        WhenEngine.broadcast(protocol: AppEventProtocol.self) { observers in
+            observers.didFinishLaunching(options)
+        }
+    }
+    
+    func homePageDidAppear() {
+        WhenEngine.broadcast(protocol: AppEventProtocol.self) { observers in
+            observers.homePageDidAppear()
+        }
+    }
+    
+    func userDidLogin() -> Void {
+        WhenEngine.broadcast(protocol: AppEventProtocol.self) { observers in
+            observers.userDidLogin()
+        }
+    }
+    
+    func userDidLogout() -> Void {
+        WhenEngine.broadcast(protocol: AppEventProtocol.self) { observers in
+            observers.userDidLogout()
+        }
+    }
+    
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -17,8 +68,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        WhenEngine.setup()
-        WhenEngine.didFinishLaunching(launchOptions ?? [:])
+        WhenEngine.shared.setup()
+        WhenEngine.shared.didFinishLaunching(launchOptions ?? [:])
         return true
     }
 

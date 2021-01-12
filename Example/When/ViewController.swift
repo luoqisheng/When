@@ -14,11 +14,11 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        WhenEngine.homePageDidAppear()
+        WhenEngine.shared.homePageDidAppear()
         
         // test
-        WhenEngine.userDidLogin()
-        WhenEngine.userDidLogout()
+        WhenEngine.shared.userDidLogin()
+        WhenEngine.shared.userDidLogout()
     }
 
     override func didReceiveMemoryWarning() {
@@ -28,43 +28,32 @@ class ViewController: UIViewController {
 
 }
 
-extension ViewController: When {
+class AClass: AppEventProtocol {
     
     @_silgen_name("When:ViewController")
-    static func When() -> When.Type {
-        return self
+    static func When() -> When {
+        return AClass()
     }
     
-    static func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) {
-        print("ViewController:didFinishLaunching")
+    func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) {
+        print("AClass:didFinishLaunching")
+    }
+    
+    func homePageDidAppear() {
+        print("AClass:homePageDidAppear")
     }
     
 }
 
 struct AStruct: When {
-    
+  
     @_silgen_name("When:AStruct")
-    static func When() -> When.Type {
-        return self
+    static func When() -> When {
+        return AStruct()
     }
     
-    static func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) {
+    func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) {
         print("AStruct:didFinishLaunching")
-    }
-}
-
-enum AEnum: When {
-    
-    case a
-    case b
-    
-    @_silgen_name("When:AEnum")
-    static func When() -> When.Type {
-        return self
-    }
-    
-    static func didFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) {
-        print("AEnum:didFinishLaunching")
     }
     
 }

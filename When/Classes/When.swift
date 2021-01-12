@@ -3,43 +3,43 @@ import Foundation
 import MachO
 import Accelerate
 
+/// http://www.itkeyword.com/doc/143214251714949x965/uleb128p1-sleb128-uleb128
+fileprivate func read_uleb128(p: inout UnsafeMutablePointer<UInt8>, end: UnsafeMutablePointer<UInt8>) -> UInt64 {
+    var result: UInt64 = 0
+    var bit = 0
+    var read_next = true
+    
+    repeat {
+        if p == end {
+            assert(false, "malformed uleb128")
+        }
+        let slice = UInt64(p.pointee & 0x7f)
+        if bit > 63 {
+            assert(false, "uleb128 too big for uint64")
+        } else {
+            result |= (slice << bit)
+            bit += 7
+        }
+        read_next = (p.pointee & 0x80) != 0  // = 128
+        p += 1
+    } while (read_next)
+    
+    return result
+}
+
 public class WhenEngine {
     
     private static var symbols: [UnsafeMutableRawPointer?] = [] 
     
-    public static func setup() {
+    public func setup() {
         _dyld_register_func_for_add_image { (image, slide) in
-            WhenEngine.symbols += WhenEngine.getDyldExportedTrie(image: image, slide: slide)
+            WhenEngine.symbols += WhenEngine.shared.getDyldExportedTrie(image: image, slide: slide)
         }
     }
     
-    private static var linkeditName = SEG_LINKEDIT.utf8CString
-    
-    /// http://www.itkeyword.com/doc/143214251714949x965/uleb128p1-sleb128-uleb128
-    private static func read_uleb128(p: inout UnsafeMutablePointer<UInt8>, end: UnsafeMutablePointer<UInt8>) -> UInt64 {
-        var result: UInt64 = 0
-        var bit = 0
-        var read_next = true
-        
-        repeat {
-            if p == end {
-                assert(false, "malformed uleb128")
-            }
-            let slice = UInt64(p.pointee & 0x7f)
-            if bit > 63 {
-                assert(false, "uleb128 too big for uint64")
-            } else {
-                result |= (slice << bit)
-                bit += 7
-            }
-            read_next = (p.pointee & 0x80) != 0  // = 128
-            p += 1
-        } while (read_next)
-        
-        return result
-    }
+    private var linkeditName = SEG_LINKEDIT.utf8CString
 
-    private static func getDyldExportedTrie(image:UnsafePointer<mach_header>!, slide: Int) -> [UnsafeMutableRawPointer?] {
+    private func getDyldExportedTrie(image:UnsafePointer<mach_header>!, slide: Int) -> [UnsafeMutableRawPointer?] {
         var linkeditCmd: UnsafeMutablePointer<segment_command_64>!
         var dynamicLoadInfoCmd: UnsafeMutablePointer<dyld_info_command>!
         
@@ -95,7 +95,7 @@ public class WhenEngine {
      Node Label
      Child Node
      */
-    private static func dumpExportedSymbols(image:UnsafePointer<mach_header>!,
+    private func dumpExportedSymbols(image:UnsafePointer<mach_header>!,
                                      start:UnsafeMutablePointer<UInt8>,
                                      loc:UnsafeMutablePointer<UInt8>,
                                      end:UnsafeMutablePointer<UInt8>,
@@ -157,53 +157,23 @@ public class WhenEngine {
         }
     }
 
+    public static var shared = WhenEngine()
 }
 
 extension WhenEngine: When {
     
-    typealias EventFunc = @convention(thin) () -> When.Type
+    typealias EventFunc = @convention(thin) () -> When
 
-    public static func When() -> When.Type {
-        return self
+    public static func When() -> When {
+        return WhenEngine.shared
     }
     
-    public static func willFinishLaunching(_ options: [UIApplication.LaunchOptionsKey : Any]) -> Void {
-        symbols.forEach {
-             let f = unsafeBitCast($0, to: EventFunc.self)
-             let when = f()
-             when.willFinishLaunching(options)
-        }
-    }
-    
-    public static func didFinishLaunching(_ options: [UIApplicationLaunchOptionsKey : Any]) {
-        symbols.forEach {
+    public static func broadcast<T>(protocol: T.Type, observers: (T) -> Void) -> Void {
+        WhenEngine.symbols.forEach {
             let f = unsafeBitCast($0, to: EventFunc.self)
-            let when = f()
-            when.didFinishLaunching(options)
-        }
-    }
-            
-    public static func homePageDidAppear() -> Void {
-        symbols.forEach {
-             let f = unsafeBitCast($0, to: EventFunc.self)
-             let when = f()
-             when.homePageDidAppear()
-        }
-    }
-    
-    public static func userDidLogin() -> Void {
-        symbols.forEach {
-             let f = unsafeBitCast($0, to: EventFunc.self)
-             let when = f()
-             when.userDidLogin()
-        }
-    }
-    
-    public static func userDidLogout() -> Void {
-        symbols.forEach {
-             let f = unsafeBitCast($0, to: EventFunc.self)
-             let when = f()
-             when.userDidLogout()
+            if let when = f() as? T {
+                observers(when)
+            }
         }
     }
     
