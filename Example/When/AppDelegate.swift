@@ -60,15 +60,34 @@ extension WhenEngine: AppEventProtocol {
     
 }
 
+protocol StartUpProtocol: WhenTask {
+    
+    func bootstrap() -> Void
+    
+}
+
+extension WhenEngine: StartUpProtocol {
+    
+    func bootstrap() {
+        WhenEngine.broadcast(protocol: StartUpProtocol.self) { (observers) in
+            observers.bootstrap()
+        }
+    }
+    
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
+    var willResignActive: Milestone = Milestone(identifier: "applicationWillResignActive") {
+        print("applicationWillResignActive")
+    }
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        WhenEngine.shared.setup()
+        WhenEngine.shared.setup(milestones: [self.willResignActive])
         WhenEngine.shared.didFinishLaunching(launchOptions ?? [:])
         return true
     }
@@ -76,6 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+        self.willResignActive.start()
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {

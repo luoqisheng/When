@@ -31,10 +31,13 @@ public class WhenEngine {
     
     private static var symbols: [UnsafeMutableRawPointer?] = [] 
     
-    public func setup() {
+    private static var milestones: [Milestone] = []
+    
+    public func setup(milestones: [Milestone] = []) {
         _dyld_register_func_for_add_image { (image, slide) in
             WhenEngine.symbols += WhenEngine.shared.getDyldExportedTrie(image: image, slide: slide)
         }
+        WhenEngine.milestones = milestones
     }
     
     private var linkeditName = SEG_LINKEDIT.utf8CString
@@ -168,13 +171,46 @@ extension WhenEngine: When {
         return WhenEngine.shared
     }
     
-    public static func broadcast<T>(protocol: T.Type, observers: (T) -> Void) -> Void {
+    private class WhenOperation: BlockOperation {
+        
+        var dependencyKeys: [AnyHashable] = []
+        
+    }
+    
+    public static func broadcast<T>(protocol: T.Type, observers: @escaping (T) -> Void) -> Void {
+        
+        var operationsMap: [AnyHashable : BlockOperation] = [:]
+        var operations: [WhenOperation] = []
         WhenEngine.symbols.forEach {
             let f = unsafeBitCast($0, to: EventFunc.self)
-            if let when = f() as? T {
-                observers(when)
+            if let t = f() as? T {
+                if let whenTask = t as? WhenTask {
+                    let operation = WhenOperation { observers(t) }
+                    operation.dependencyKeys = whenTask.dependencies()
+                    operations += [operation]
+                    if let id = type(of: whenTask).identifier() {
+                        operationsMap[id] = operation
+                    }
+                } else {
+                    observers(t)
+                }
             }
         }
+        
+        self.milestones.forEach { milestone in
+            operationsMap[milestone.identifier] = milestone.milestone
+        }
+        
+        operations.forEach { (op) in
+            op.dependencyKeys.forEach { (key) in
+                if let dependency = operationsMap[key] {
+                    op.addDependency(dependency)
+                }
+            }
+        }
+        
+        OperationQueue.main.addOperations(operations, waitUntilFinished: false)
+        
     }
     
 }
