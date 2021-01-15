@@ -29,13 +29,23 @@ fileprivate func read_uleb128(p: inout UnsafeMutablePointer<UInt8>, end: UnsafeM
 
 public class WhenEngine {
     
+    
+    #if arch(x86_64) || arch(arm64)
+    typealias MachHeader = mach_header_64
+    #else
+    typealias MachHeader = mach_header
+    #endif
+    
     private static var symbols: [UnsafeMutableRawPointer?] = [] 
-    
+    private static var OCWhenInstances: [WhenProtocol?] = []
+
     private static var milestones: [Milestone] = []
-    
+
     public func setup(milestones: [Milestone] = []) {
         _dyld_register_func_for_add_image { (image, slide) in
+            let mhp = image?.withMemoryRebound(to: MachHeader.self, capacity: 1, { $0 })
             WhenEngine.symbols += WhenEngine.shared.getDyldExportedTrie(image: image, slide: slide)
+            WhenEngine.OCWhenInstances += WhenEngine.shared.getWhenInstances(image: mhp, slide: slide)
         }
         WhenEngine.milestones = milestones
     }
@@ -163,6 +173,57 @@ public class WhenEngine {
     public static var shared = WhenEngine()
 }
 
+extension WhenEngine {
+    typealias classFunc = @convention(c) () -> WhenProtocol?
+
+    private func getWhenInstances(image:UnsafePointer<MachHeader>!, slide: Int) -> [WhenProtocol?] {
+        var size: UInt = 0
+        var whenSection = getsectiondata(image, SEG_DATA, "when", &size)
+        guard whenSection != nil else { return [] }
+
+        let count = Int(size) / MemoryLayout<UnsafeMutableRawPointer>.stride
+        var clzes: [WhenProtocol?] = []
+        for _ in 0 ..< count {
+            if let f = whenSection?.withMemoryRebound(to: classFunc.self, capacity: 1, { $0 }).pointee {
+                clzes += [f()]
+            }
+            whenSection = whenSection?.advanced(by: MemoryLayout<UnsafeMutableRawPointer>.stride)
+        }
+        
+        return clzes
+    }
+    
+    @objc
+    public static func broadcast(observers: @escaping (WhenProtocol) -> Void) -> Void {
+        var operationsMap: [AnyHashable : BlockOperation] = [:]
+        var operations: [WhenOperation] = []
+        
+        for when in WhenEngine.OCWhenInstances {
+            guard let when = when else {
+                continue
+            }
+            
+            let operation = WhenOperation { observers(when) }
+            if let when = when as? WhenTaskProtocol {
+                operation.dependencyKeys = type(of: when).dependencies()
+                operationsMap[type(of: when).identifier()] = operation
+            }
+            operations += [operation]
+        }
+        
+        operations.forEach { (op) in
+            op.dependencyKeys.forEach { (key) in
+                if let dependency = operationsMap[key] {
+                    op.addDependency(dependency)
+                }
+            }
+        }
+        
+        OperationQueue.main.addOperations(operations, waitUntilFinished: false)
+    }
+
+}
+
 extension WhenEngine: When {
     
     typealias EventFunc = @convention(thin) () -> When
@@ -178,7 +239,6 @@ extension WhenEngine: When {
     }
     
     public static func broadcast<T>(protocol: T.Type, observers: @escaping (T) -> Void) -> Void {
-        
         var operationsMap: [AnyHashable : BlockOperation] = [:]
         var operations: [WhenOperation] = []
         WhenEngine.symbols.forEach {

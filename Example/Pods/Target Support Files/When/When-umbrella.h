@@ -10,6 +10,7 @@
 #endif
 #endif
 
+#import "WhenProtocol.h"
 
 FOUNDATION_EXPORT double WhenVersionNumber;
 FOUNDATION_EXPORT const unsigned char WhenVersionString[];

@@ -31,10 +31,10 @@ class ViewController: UIViewController {
 
 }
 
-class AClass: AppEventProtocol {
+public class AClass: AppEventProtocol {
     
     @_silgen_name("When:AClass")
-    static func When() -> When {
+    public static func When() -> When {
         return AClass()
     }
     
@@ -48,10 +48,10 @@ class AClass: AppEventProtocol {
     
 }
 
-struct AStruct: AppEventProtocol {
+public struct AStruct: AppEventProtocol {
   
     @_silgen_name("When:AStruct")
-    static func When() -> When {
+    public static func When() -> When {
         return AStruct()
     }
     
@@ -61,60 +61,60 @@ struct AStruct: AppEventProtocol {
     
 }
 
-class AModule: StartUpProtocol {
+public class AModule: StartUpProtocol {
     
     func bootstrap() {
         print("AModule:bootstrap")
     }
     
     @_silgen_name("When:AModule")
-    static func When() -> When {
+    public static func When() -> When {
         return AModule()
     }
     
-    func dependencies() -> [AnyHashable] {
+    public func dependencies() -> [AnyHashable] {
         return [BModule.identifier()!]
     }
     
-    static func identifier() -> AnyHashable? {
+    public static func identifier() -> AnyHashable? {
         return "AModule"
     }
     
 }
 
-class BModule: StartUpProtocol {
+public class BModule: StartUpProtocol {
     
     func bootstrap() {
         print("BModule:bootstrap")
     }
     
     @_silgen_name("When:BModule")
-    static func When() -> When {
+    public static func When() -> When {
         return BModule()
     }
     
-    func dependencies() -> [AnyHashable] {
+    public func dependencies() -> [AnyHashable] {
         return [CModule.identifier()!, "applicationWillResignActive"]
     }
     
-    static func identifier() -> AnyHashable? {
+    public static func identifier() -> AnyHashable? {
         return "BModule"
     }
     
 }
 
-class CModule: StartUpProtocol {
+public class CModule: StartUpProtocol {
     
     func bootstrap() {
         print("CModule:bootstrap")
     }
     
     @_silgen_name("When:CModule")
-    static func When() -> When {
+    public static func When() -> When {
         return CModule()
     }
     
-    static func identifier() -> AnyHashable? {
+    public static func identifier() -> AnyHashable? {
         return "CModule"
     }
     

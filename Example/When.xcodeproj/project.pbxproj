@@ -15,6 +15,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		F54EE1AB25B0731200066CE5 /* OCModule.m in Sources */ = {isa = PBXBuildFile; fileRef = F54EE1AA25B0731200066CE5 /* OCModule.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,10 @@
 		B9CB984B6B0F279D5CF16C39 /* Pods-When_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-When_Tests.release.xcconfig"; path = "Target Support Files/Pods-When_Tests/Pods-When_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		C3FB026738AB7ECA08338503 /* Pods_When_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_When_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB15C1B5B7BE958DBAFC337A /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		F54EE1A825B0731200066CE5 /* When_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "When_Example-Bridging-Header.h"; sourceTree = "<group>"; };
+		F54EE1A925B0731200066CE5 /* OCModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCModule.h; sourceTree = "<group>"; };
+		F54EE1AA25B0731200066CE5 /* OCModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCModule.m; sourceTree = "<group>"; };
+		F54EE1F025B151C700066CE5 /* OCStartUpProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCStartUpProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +115,10 @@
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
+				F54EE1A925B0731200066CE5 /* OCModule.h */,
+				F54EE1F025B151C700066CE5 /* OCStartUpProtocol.h */,
+				F54EE1AA25B0731200066CE5 /* OCModule.m */,
+				F54EE1A825B0731200066CE5 /* When_Example-Bridging-Header.h */,
 			);
 			name = "Example for When";
 			path = When;
@@ -212,7 +221,7 @@
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1230;
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
@@ -332,6 +341,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				F54EE1AB25B0731200066CE5 /* OCModule.m in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -478,11 +488,15 @@
 			baseConfigurationReference = 68BB9FBC4AEBFCBAB69E9B2F /* Pods-When_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = When/Info.plist;
+				KEEP_PRIVATE_EXTERNS = NO;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "When/When_Example-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};
@@ -493,11 +507,15 @@
 			baseConfigurationReference = 738371C10CF7EA8E176EED96 /* Pods-When_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				INFOPLIST_FILE = When/Info.plist;
+				KEEP_PRIVATE_EXTERNS = NO;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "When/When_Example-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};

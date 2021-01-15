@@ -72,6 +72,12 @@ extension WhenEngine: StartUpProtocol {
         WhenEngine.broadcast(protocol: StartUpProtocol.self) { (observers) in
             observers.bootstrap()
         }
+        
+        WhenEngine.broadcast { (when) in
+            if let when = when as? OCStartUpProtocol {
+                when.bootstrap?()
+            }
+        }
     }
     
 }
